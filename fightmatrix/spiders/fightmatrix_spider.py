@@ -24,7 +24,16 @@ class FightmatrixSpiderSpider(scrapy.Spider):
                 )
 
     def parse_div(self, response):
-        pass
+        page_num = response.meta.get('page_num')
+        div_name = response.meta.get('div_name')
+        yield response.follow(
+            '{0}?PageNum={1}'.format(response.url, page_num),
+            callback=self.parse_div,
+            meta={
+                'page_num': page_num + 1,
+                'div_name': div_name,
+            },
+        )
 
 
     def parse_fighter(self, response):
