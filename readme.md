@@ -1,9 +1,18 @@
-pip install scrapy
+What is it?
 
-scrapy startproject fightmatrix
+It's python and Scrapy based parser of mma fighters from fightmatrix.com
 
-cd fightmatrix/
+What I've done to init the project:
 
-scrapy genspider fightmatrix fightmatrix.com
+	pip install scrapy
+	scrapy startproject fightmatrix
+	cd fightmatrix/
+	scrapy genspider fightmatrix fightmatrix.com
+	scrapy crawl fightmatrix_spider
+	scrapy crawl fightmatrix_spider -o output.csv -t csv
+	
+How to use this parser:
 
-scrapy crawl fightmatrix_spider
+    pip install scrapy
+    cd fightmatrix/
+    scrapy crawl fightmatrix_spider -o output.csv -t csv

@@ -13,9 +13,9 @@ class FightmatrixSpiderSpider(scrapy.Spider):
                 'pound' not in division_link.lower() and 
                 'division' not in division_link.lower()
             ):  
-                div_name = division_link.split()[-1]
+                div_name = division_link.split('/')[-2]
                 yield response.follow(
-                    '{0}?page=0'.format(response.url),
+                    '{0}?PageNum=1'.format(division_link),
                     callback=self.parse_div,
                     meta={
                         'page_num': 1,
@@ -26,17 +26,39 @@ class FightmatrixSpiderSpider(scrapy.Spider):
     def parse_div(self, response):
         page_num = response.meta.get('page_num')
         div_name = response.meta.get('div_name')
-        yield response.follow(
-            '{0}?PageNum={1}'.format(response.url, page_num),
-            callback=self.parse_div,
-            meta={
-                'page_num': page_num + 1,
-                'div_name': div_name,
-            },
-        )
+        fighters_on_page = False
+        for fighter_link in response.xpath(
+            '//td/a[@class="sherLink"]/@href',
+        ).extract():
+            fighters_on_page = True
+            yield response.follow(
+                fighter_link,
+                callback=self.parse_fighter,
+                meta={
+                    'div_name': div_name,
+                },
+            )
+        # go to next page if are some fighters
+        if fighters_on_page:
+            div_url = response.url
+            div_url = div_url[:div_url.index('?PageNum')]
+            page_num += 1
+            yield response.follow(
+                '{0}?PageNum={1}'.format(div_url, page_num),
+                callback=self.parse_div,
+                meta={
+                    'page_num': page_num,
+                    'div_name': div_name,
+                },
+            )
 
 
     def parse_fighter(self, response):
         f_m_item = FightmatrixItem()
-        f_m_item['division'] = division_link
+        name = response.xpath(
+            '//div[@class="posttitle"]/h1/a/text()',
+        ).extract_first()
+        div_name = response.meta.get('div_name')
+        f_m_item['division'] = div_name
+        f_m_item['name'] = name
         yield f_m_item
