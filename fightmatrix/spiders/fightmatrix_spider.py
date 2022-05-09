@@ -2,7 +2,7 @@ import scrapy
 from fightmatrix.items import FightmatrixItem
 
 
-class FightmatrixSpiderSpider(scrapy.Spider):
+class FightmatrixSpider(scrapy.Spider):
     name = 'fightmatrix_spider'
     allowed_domains = ['fightmatrix.com']
     start_urls = ['https://www.fightmatrix.com/mma-ranks/']
