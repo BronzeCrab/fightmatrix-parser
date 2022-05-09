@@ -1,3 +1,5 @@
+pip install scrapy
+
 scrapy startproject fightmatrix
 
 cd fightmatrix/
