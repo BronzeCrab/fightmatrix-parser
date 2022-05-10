@@ -59,11 +59,34 @@ class FightmatrixSpider(scrapy.Spider):
             '//div[@class="posttitle"]/h1/a/text()',
         ).extract_first()
         div_name = response.meta.get('div_name')
-        current_ranking = response.xpath(
-            '//td[@class="tdRank"]/div/a/text()',
-        ).extract_first()
+
+
+        current_ranking = ''
+        for ind, ranking in enumerate(response.xpath(
+            '//td[@class="tdRank"]/div[@class="leftCol"]/a/text()',
+        ).extract()):
+            if ind == 0:
+                current_ranking += ranking
+            else:
+                current_ranking += ', ' + ranking
+
+        for ranking in response.xpath(
+            '//td[@class="tdRank"]/div[@class="rightCol"]/a/text()',
+        ).extract():
+            current_ranking += ', ' + ranking
+   
+        some_data = response.xpath(
+            '//tr/td[@class="tdRankAlt"]/div[@class="leftCol"]/strong/text()',
+        ).extract()
+        ufc_record = ''
+        for s_d in some_data:
+            if s_d.count('-') == 2:
+                ufc_record = s_d
+                break
+
 
         f_m_item['division'] = div_name
         f_m_item['name'] = name
         f_m_item['current_ranking'] = current_ranking
+        f_m_item['ufc_record'] = ufc_record
         yield f_m_item
