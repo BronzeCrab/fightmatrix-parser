@@ -16,14 +16,14 @@ class FightmatrixSpider(scrapy.Spider):
                 div_name = division_link.split('/')[-2]
                 yield response.follow(
                     '{0}?PageNum=1'.format(division_link),
-                    callback=self.parse_div,
+                    callback=self.parse_division,
                     meta={
                         'page_num': 1,
                         'div_name': div_name,
                     },
                 )
 
-    def parse_div(self, response):
+    def parse_division(self, response):
         page_num = response.meta.get('page_num')
         div_name = response.meta.get('div_name')
         fighters_on_page = False
@@ -45,7 +45,7 @@ class FightmatrixSpider(scrapy.Spider):
             page_num += 1
             yield response.follow(
                 '{0}?PageNum={1}'.format(div_url, page_num),
-                callback=self.parse_div,
+                callback=self.parse_division,
                 meta={
                     'page_num': page_num,
                     'div_name': div_name,
@@ -59,6 +59,11 @@ class FightmatrixSpider(scrapy.Spider):
             '//div[@class="posttitle"]/h1/a/text()',
         ).extract_first()
         div_name = response.meta.get('div_name')
+        current_ranking = response.xpath(
+            '//td[@class="tdRank"]/div/a/text()',
+        ).extract_first()
+
         f_m_item['division'] = div_name
         f_m_item['name'] = name
+        f_m_item['current_ranking'] = current_ranking
         yield f_m_item
